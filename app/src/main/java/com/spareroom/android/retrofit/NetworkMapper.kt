@@ -37,6 +37,9 @@ constructor() : EntityMapper<SpareRoomNetworkEntity, SpareRoomModel> {
     }
 
     fun mapFromEntityList(entities: List<SpareRoomNetworkEntity>): List<SpareRoomModel> {
-        return entities.map { mapFromEntity(it) }
+
+        return entities.map {
+                mapFromEntity(it)
+        }
     }
 }

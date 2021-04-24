@@ -3,6 +3,7 @@ package com.spareroom.android.ui
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
+import com.spareroom.android.intent.MainStateEvent
 import com.spareroom.android.model.SpareRoomModel
 import com.spareroom.android.repository.MainRepository
 import com.spareroom.android.utils.DataState
@@ -42,13 +43,5 @@ constructor(
             }
         }
     }
-
-}
-
-sealed class MainStateEvent {
-
-    object GetSpareRoomEvents: MainStateEvent()
-
-    object None: MainStateEvent()
 
 }

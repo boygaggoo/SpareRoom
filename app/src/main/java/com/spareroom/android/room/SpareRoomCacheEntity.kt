@@ -12,7 +12,7 @@ data class SpareRoomCacheEntity(
    var location: String,
    @PrimaryKey(autoGenerate = false)
    @ColumnInfo(name = "phone_number")
-   var phone_number: Int,
+   var phone_number: String,
    @ColumnInfo(name = "venue")
    var venue: String,
    @ColumnInfo(name = "start_time")

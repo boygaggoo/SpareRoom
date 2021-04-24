@@ -6,6 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.spareroom.android.R
+import com.spareroom.android.intent.MainStateEvent
 import com.spareroom.android.model.SpareRoomModel
 import com.spareroom.android.utils.DataState
 import dagger.hilt.android.AndroidEntryPoint
@@ -55,8 +56,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun appendTitle(spareRoomModel: List<SpareRoomModel>) {
         val sb = StringBuilder()
-        for (manga in spareRoomModel) {
-            sb.append(manga.start_time + "\n")
+        for (model in spareRoomModel) {
+            sb.append(model.location + "\n")
         }
         tv_text.text = sb.toString()
     }

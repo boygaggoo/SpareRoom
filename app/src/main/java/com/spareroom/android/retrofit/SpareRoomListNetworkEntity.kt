@@ -9,10 +9,7 @@ import com.google.gson.annotations.SerializedName
  */
 
 
-
 data class SpareRoomNetworkEntity(
-
-
     @SerializedName("image_url")
     @Expose
     var image_url: String,
@@ -23,7 +20,7 @@ data class SpareRoomNetworkEntity(
 
     @SerializedName("phone_number")
     @Expose
-    var phone_number: Int,
+    var phone_number: String,
 
     @SerializedName("venue")
     @Expose
@@ -40,4 +37,4 @@ data class SpareRoomNetworkEntity(
     @SerializedName("cost")
     @Expose
     var cost: String
-    )
+)
