@@ -1,14 +1,18 @@
-package com.spareroom.android.room
+package com.spareroom.android.retrofit
 
 import com.spareroom.android.model.SpareRoomModel
 import com.spareroom.android.utils.EntityMapper
 import javax.inject.Inject
 
-class CacheMapper
+/**
+ * Responsible to map network obj to domain obj.
+ */
+
+class NetworkMapper
 
 @Inject
-constructor(): EntityMapper<SpareRoomCacheEntity, SpareRoomModel> {
-    override fun mapFromEntity(entity: SpareRoomCacheEntity): SpareRoomModel {
+constructor() : EntityMapper<SpareRoomNetworkEntity, SpareRoomModel> {
+    override fun mapFromEntity(entity: SpareRoomNetworkEntity): SpareRoomModel {
         return SpareRoomModel(
             image_url = entity.image_url,
             location = entity.location,
@@ -20,8 +24,8 @@ constructor(): EntityMapper<SpareRoomCacheEntity, SpareRoomModel> {
         )
     }
 
-    override fun mapToEntity(domain: SpareRoomModel): SpareRoomCacheEntity {
-        return SpareRoomCacheEntity(
+    override fun mapToEntity(domain: SpareRoomModel): SpareRoomNetworkEntity {
+        return SpareRoomNetworkEntity(
             image_url = domain.image_url,
             location = domain.location,
             phone_number = domain.phone_number,
@@ -32,8 +36,7 @@ constructor(): EntityMapper<SpareRoomCacheEntity, SpareRoomModel> {
         )
     }
 
-    fun mapFromEntityList(entities: List<SpareRoomCacheEntity>): List<SpareRoomModel> {
+    fun mapFromEntityList(entities: List<SpareRoomNetworkEntity>): List<SpareRoomModel> {
         return entities.map { mapFromEntity(it) }
     }
-
 }

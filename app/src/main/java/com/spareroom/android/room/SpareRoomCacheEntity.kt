@@ -4,25 +4,21 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "mangas")
+@Entity(tableName = "SpareRoom")
 data class SpareRoomCacheEntity(
-   @PrimaryKey(autoGenerate = false)
-   @ColumnInfo(name = "id")
-   var id: Int,
-   @ColumnInfo(name = "url")
-   var url: String,
    @ColumnInfo(name = "image_url")
-   var imageUrl: String,
-   @ColumnInfo(name = "title")
-   var title: String,
-   @ColumnInfo(name = "airing")
-   var airing: String,
-   @ColumnInfo(name = "synopsis")
-   var synopsis: String,
-   @ColumnInfo(name = "type")
-   var type: String,
-   @ColumnInfo(name = "episode")
-   var episode: Int,
-   @ColumnInfo(name = "rated")
-   var rated: String
+   var image_url: String,
+   @ColumnInfo(name = "location")
+   var location: String,
+   @PrimaryKey(autoGenerate = false)
+   @ColumnInfo(name = "phone_number")
+   var phone_number: Int,
+   @ColumnInfo(name = "venue")
+   var venue: String,
+   @ColumnInfo(name = "start_time")
+   var start_time: String,
+   @ColumnInfo(name = "end_time")
+   var end_time: String,
+   @ColumnInfo(name = "cost")
+   var cost: String
 )

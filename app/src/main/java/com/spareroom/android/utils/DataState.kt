@@ -1,4 +1,4 @@
-package com.nyan.ktmvvmhilt.utils
+package com.spareroom.android.utils
 
 sealed class DataState<out R> {
 
