@@ -6,11 +6,12 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "SpareRoom")
 data class SpareRoomCacheEntity(
+   @PrimaryKey(autoGenerate = true)
+   var id : Int = 0,
    @ColumnInfo(name = "image_url")
    var image_url: String,
    @ColumnInfo(name = "location")
    var location: String,
-   @PrimaryKey(autoGenerate = false)
    @ColumnInfo(name = "phone_number")
    var phone_number: String,
    @ColumnInfo(name = "venue")
