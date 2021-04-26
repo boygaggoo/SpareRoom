@@ -1,6 +1,8 @@
 package com.spareroom.android.utils
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.net.ConnectivityManager
 import android.widget.ImageView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
@@ -34,5 +36,12 @@ object Util {
         circularProgressDrawable.setCenterRadius(50f)
         circularProgressDrawable.start()
         return circularProgressDrawable
+    }
+    fun Context.getActivity(): Activity? {
+        return when (this) {
+            is Activity -> this
+            is ContextWrapper -> this.baseContext.getActivity()
+            else -> null
+        }
     }
 }

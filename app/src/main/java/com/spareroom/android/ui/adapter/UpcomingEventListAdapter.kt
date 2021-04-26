@@ -20,6 +20,7 @@ import com.spareroom.android.model.DetailList
 import com.spareroom.android.model.SpareRoomModel
 import com.spareroom.android.model.UpcomingList
 import com.spareroom.android.utils.Util
+import com.spareroom.android.utils.Util.getActivity
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -156,10 +157,10 @@ class UpcomingEventListAdapter(arrayList: ArrayList<UpcomingList>) : RecyclerVie
             try {
                 cardView!!.setOnClickListener { v ->
                     val callPermissionCheck =
-                        ContextCompat.checkSelfPermission(v.context, Manifest.permission.CALL_PHONE)
+                        ContextCompat.checkSelfPermission(v.context.getActivity()!!, Manifest.permission.CALL_PHONE)
                     if (callPermissionCheck != PackageManager.PERMISSION_GRANTED) {
                         ActivityCompat.requestPermissions(
-                            (v.context as Activity),
+                            (v.context.getActivity()!! as Activity),
                             arrayOf(Manifest.permission.CALL_PHONE),
                             0
                         )
@@ -168,7 +169,7 @@ class UpcomingEventListAdapter(arrayList: ArrayList<UpcomingList>) : RecyclerVie
                         if (phoneNo != null) {
                             val intent = Intent(Intent.ACTION_CALL)
                             intent.data = Uri.parse("tel:$phoneNo")
-                            v.context.startActivity(intent)
+                            v.context.getActivity()!!.startActivity(intent)
                         }
                     }
                 }
