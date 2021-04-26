@@ -90,6 +90,7 @@ class DynamicFragment : Fragment() {
             subscribeObservers()
             viewModel.setStateEvent(MainStateEvent.GetSpareRoomEvents)
         } else {
+            progress_bar.visibility =  View.GONE
             errorLayout!!.visibility = View.GONE
             emptyLayout!!.visibility = View.GONE
             upcomingEventList!!.visibility = View.GONE
