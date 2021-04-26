@@ -19,10 +19,13 @@ constructor(
     @Assisted private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    private val _dataState: MutableLiveData<DataState<List<SpareRoomModel>>> = MutableLiveData()
+    private val _liveDataState: MutableLiveData<DataState<List<SpareRoomModel>>> = MutableLiveData()
+    val liveDataState: LiveData<DataState<List<SpareRoomModel>>>
+        get() = _liveDataState
 
-    val dataState: LiveData<DataState<List<SpareRoomModel>>>
-        get() = _dataState
+    private val _localDbDataState: MutableLiveData<DataState<List<SpareRoomModel>>> = MutableLiveData()
+    val localDbDataState: LiveData<DataState<List<SpareRoomModel>>>
+        get() = _localDbDataState
 
     fun setStateEvent(mainStateEvent: MainStateEvent) {
         viewModelScope.launch {
@@ -31,10 +34,18 @@ constructor(
                 is MainStateEvent.GetSpareRoomEvents -> {
                     mainRepository.getSpareRoomEvents()
                         .onEach { dataState ->
-                            _dataState.value = dataState
+                            _liveDataState.value = dataState
                         }
                         .launchIn(viewModelScope)
                 }
+                is MainStateEvent.GetSpareRoomLocalDbEvents -> {
+                    mainRepository.checkLocalDb()
+                        .onEach { datestate ->
+                            _localDbDataState.value = datestate
+                        }
+                        .launchIn(viewModelScope)
+                }
+
 
                 is MainStateEvent.None -> {
                     //When nothing happen.

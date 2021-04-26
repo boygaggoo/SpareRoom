@@ -57,5 +57,18 @@ constructor(
             emit(DataState.Error(e))
         }
     }
-
+    suspend fun checkLocalDb(): Flow<DataState<List<SpareRoomModel>>> = flow {
+        //Show loading.
+        emit(DataState.Loading)
+        try {
+            //Get all the saved data in db.
+            val cacheMangas = spareRoomDao.getAll()
+            //Show success with saved data.
+            emit(DataState.Success(cacheMapper.mapFromEntityList(cacheMangas)))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            //Show error.
+            emit(DataState.Error(e))
+        }
+    }
 }

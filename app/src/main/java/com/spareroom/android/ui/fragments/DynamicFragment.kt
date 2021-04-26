@@ -1,19 +1,16 @@
 package com.spareroom.android.ui.fragments
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.spareroom.android.R
 import com.spareroom.android.intent.MainStateEvent
 import com.spareroom.android.model.DateList
@@ -30,83 +27,85 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
+
 @AndroidEntryPoint
 class DynamicFragment : Fragment() {
 
     // view model object to get data
     private val viewModel: MainViewModel by viewModels()
-
-    // UI element building blocks
-    var upcomingEventList: RecyclerView? = null
-    var loadingLayout: LinearLayout? = null
-    var emptyLayout: LinearLayout? = null
-    var errorLayout: LinearLayout? = null
-    var noConnectionLayout: LinearLayout? = null
-    var offlineRetryBtn: Button? = null
-    var errorRetryBtn: Button? = null
     var upcomingConsolidatedList: ArrayList<UpcomingList> = ArrayList<UpcomingList>()
-    private val upcomingEventListAdapter: UpcomingEventListAdapter = UpcomingEventListAdapter(ArrayList<UpcomingList>())
+    private val upcomingEventListAdapter: UpcomingEventListAdapter =
+        UpcomingEventListAdapter(ArrayList<UpcomingList>())
 
     companion object {
         fun newInstance(): DynamicFragment {
             return DynamicFragment()
         }
     }
+
     //3
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_dynamic, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        loadingLayout = view.findViewById(R.id.loading_layout)
-        emptyLayout = view.findViewById(R.id.empty_layout)
-        errorLayout = view.findViewById(R.id.error_layout)
-        errorRetryBtn = view.findViewById<Button>(R.id.error_retry_btn)
-        noConnectionLayout = view.findViewById(R.id.no_connection_layout)
-        offlineRetryBtn = view.findViewById<Button>(R.id.offline_retry_btn)
-        upcomingEventList = view.findViewById(R.id.upcomingEventList)
-        progress_bar.visibility =  View.VISIBLE
+
         loadData()
 
-        errorRetryBtn!!.setOnClickListener(View.OnClickListener { loadData() })
+        error_retry_btn!!.setOnClickListener { alertUser() }
 
-        offlineRetryBtn!!.setOnClickListener(View.OnClickListener { loadData() })
-        upcomingEventList!!.setOnClickListener(View.OnClickListener {
-            val phone = "07466887291"
-            val intent = Intent(Intent.ACTION_CALL)
-            intent.data = Uri.parse("tel:$phone")
-            requireContext().startActivity(intent)
+        offline_retry_btn!!.setOnClickListener { alertUser() }
+
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(OnRefreshListener { // Your code to refresh the list here.
+            // Make sure you call swipeContainer.setRefreshing(false)
+            // once the network request has completed successfully.
+            loadDataLive()
         })
-
     }
+
     private fun loadData() {
+        progress_bar.visibility = View.VISIBLE
         if (Util.isConnected(requireContext())) {
-            upcomingEventList!!.layoutManager = LinearLayoutManager(context)
-            upcomingEventList!!.adapter = upcomingEventListAdapter
-            subscribeObservers()
-            viewModel.setStateEvent(MainStateEvent.GetSpareRoomEvents)
+            loadDataLive()
         } else {
-            progress_bar.visibility =  View.GONE
-            errorLayout!!.visibility = View.GONE
-            emptyLayout!!.visibility = View.GONE
-            upcomingEventList!!.visibility = View.GONE
-            noConnectionLayout!!.visibility = View.VISIBLE
+            // if there is no data in local db as well, show no internet
+            loadDataLocal()
         }
     }
+
+    private fun loadDataLive() {
+        upcomingEventList!!.layoutManager = LinearLayoutManager(context)
+        upcomingEventList!!.adapter = upcomingEventListAdapter
+        subscribeObservers()
+        viewModel.setStateEvent(MainStateEvent.GetSpareRoomEvents)
+    }
+
+    private fun loadDataLocal() {
+        upcomingEventList!!.layoutManager = LinearLayoutManager(context)
+        upcomingEventList!!.adapter = upcomingEventListAdapter
+        subscribeObservers()
+        viewModel.setStateEvent(MainStateEvent.GetSpareRoomLocalDbEvents)
+    }
+
     @SuppressLint("NewApi")
     private fun subscribeObservers() {
-        viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
-            when(dataState) {
+        viewModel.liveDataState.observe(viewLifecycleOwner, Observer { dataState ->
+            when (dataState) {
                 is DataState.Success<List<SpareRoomModel>> -> {
                     if (dataState.data != null) {
-                        progress_bar.visibility =  View.GONE
-                        loadingLayout!!.visibility =  View.GONE
+                        swipeContainer.setRefreshing(false);
+                        progress_bar.visibility = View.GONE
+                        loading_layout!!.visibility = View.GONE
                         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
-                        val iter: MutableIterator<SpareRoomModel> = dataState.data.iterator() as MutableIterator<SpareRoomModel>
+                        val iter: MutableIterator<SpareRoomModel> =
+                            dataState.data.iterator() as MutableIterator<SpareRoomModel>
                         while (iter.hasNext()) {
                             val upcomingModel: SpareRoomModel = iter.next()
                             try {
@@ -119,43 +118,106 @@ class DynamicFragment : Fragment() {
                             }
                         }
 
-                        val groupedTreeMap: TreeMap<String, MutableList<SpareRoomModel>> = groupDataIntoHashMap(dataState.data)
+                        val groupedTreeMap: TreeMap<String, MutableList<SpareRoomModel>> =
+                            groupDataIntoHashMap(dataState.data)
                         for (date in groupedTreeMap.keys) {
                             val dateItem = DateList()
-                            dateItem.date=date
+                            dateItem.date = date
                             upcomingConsolidatedList.add(dateItem)
                             for (upcomingModel in groupedTreeMap[date]!!) {
                                 val detailListItem = DetailList()
-                                detailListItem.upcomingModel=upcomingModel
+                                detailListItem.upcomingModel = upcomingModel
                                 upcomingConsolidatedList.add(detailListItem)
                             }
                         }
                         upcomingEventList!!.visibility = View.VISIBLE
                         upcomingEventListAdapter.updateUpcomingEvents(upcomingConsolidatedList)
                     } else {
-                        emptyLayout!!.visibility = View.VISIBLE
-                        loadingLayout!!.visibility = View.VISIBLE
+                        empty_layout!!.visibility = View.VISIBLE
+                        loading_layout!!.visibility = View.VISIBLE
                         upcomingEventList!!.visibility = View.GONE
                     }
                 }
                 is DataState.Error -> {
-                    progress_bar.visibility =  View.GONE
-                    errorLayout!!.visibility = View.VISIBLE
-                    emptyLayout!!.visibility = View.GONE
-                    loadingLayout!!.visibility = View.VISIBLE
+                    swipeContainer.setRefreshing(false);
+                    progress_bar.visibility = View.GONE
+                    error_layout!!.visibility = View.VISIBLE
+                    empty_layout!!.visibility = View.GONE
+                    loading_layout!!.visibility = View.VISIBLE
                 }
                 is DataState.Loading -> {
-                    emptyLayout!!.visibility = View.GONE
+                    empty_layout!!.visibility = View.GONE
                     upcomingEventList!!.visibility = View.GONE
-                    errorLayout!!.visibility = View.GONE
-                    noConnectionLayout!!.visibility = View.GONE
+                    error_layout!!.visibility = View.GONE
+                    no_connection_layout!!.visibility = View.GONE
                 }
             }
         })
+
+        viewModel.localDbDataState.observe(viewLifecycleOwner, Observer { dataState ->
+            when (dataState) {
+                is DataState.Success<List<SpareRoomModel>> -> {
+                    if (dataState.data.size > 0) {
+                        progress_bar.visibility = View.GONE
+                        loading_layout!!.visibility = View.GONE
+                        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
+                        val iter: MutableIterator<SpareRoomModel> =
+                            dataState.data.iterator() as MutableIterator<SpareRoomModel>
+                        while (iter.hasNext()) {
+                            val upcomingModel: SpareRoomModel = iter.next()
+                            try {
+                                val date = sdf.parse(upcomingModel.start_time)
+                                if (System.currentTimeMillis() > date.time) {
+                                    iter.remove()
+                                }
+                            } catch (e: ParseException) {
+                                e.printStackTrace()
+                            }
+                        }
+
+                        val groupedTreeMap: TreeMap<String, MutableList<SpareRoomModel>> =
+                            groupDataIntoHashMap(dataState.data)
+                        for (date in groupedTreeMap.keys) {
+                            val dateItem = DateList()
+                            dateItem.date = date
+                            upcomingConsolidatedList.add(dateItem)
+                            for (upcomingModel in groupedTreeMap[date]!!) {
+                                val detailListItem = DetailList()
+                                detailListItem.upcomingModel = upcomingModel
+                                upcomingConsolidatedList.add(detailListItem)
+                            }
+                        }
+                        upcomingEventList!!.visibility = View.VISIBLE
+                        upcomingEventListAdapter.updateUpcomingEvents(upcomingConsolidatedList)
+                    } else {
+                        error_layout!!.visibility = View.GONE
+                        empty_layout!!.visibility = View.GONE
+                        upcomingEventList!!.visibility = View.GONE
+                        no_connection_layout!!.visibility = View.VISIBLE
+                        progress_bar.visibility = View.GONE
+                    }
+                }
+                is DataState.Error -> {
+                    progress_bar.visibility = View.GONE
+                    error_layout!!.visibility = View.VISIBLE
+                    empty_layout!!.visibility = View.GONE
+                    loading_layout!!.visibility = View.VISIBLE
+                }
+                is DataState.Loading -> {
+                    empty_layout!!.visibility = View.GONE
+                    upcomingEventList!!.visibility = View.GONE
+                    error_layout!!.visibility = View.GONE
+                    no_connection_layout!!.visibility = View.GONE
+                }
+            }
+        })
+
     }
+
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.dataState.removeObservers(this)
+        viewModel.liveDataState.removeObservers(this)
+        viewModel.localDbDataState.removeObservers(this)
     }
 
     private fun groupDataIntoHashMap(listOfUpcomingModel: List<SpareRoomModel>): TreeMap<String, MutableList<SpareRoomModel>> {
@@ -188,5 +250,25 @@ class DynamicFragment : Fragment() {
             }
         }
         return groupedTreeMap
+    }
+
+    fun alertUser() {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Androidly Alert")
+        builder.setMessage("We have a message")
+//builder.setPositiveButton("OK", DialogInterface.OnClickListener(function = x))
+
+        builder.setPositiveButton("Local Data") { dialog, which ->
+            loadDataLocal()
+        }
+
+        builder.setNegativeButton("Live Data") { dialog, which ->
+            loadDataLive()
+        }
+
+        builder.setNeutralButton("Close") { dialog, which ->
+
+        }
+        builder.show()
     }
 }
