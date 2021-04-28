@@ -45,7 +45,7 @@ Use the Android Studio *Build Variants* button to choose between **release** and
 
 ## App Demo
 
-[![Loading](https://raw.githubusercontent.com/boygaggoo/SpareRoom/master/demo.gif)]()
+[![Loading](https://raw.githubusercontent.com/boygaggoo/SpareRoom/master/demo.gif) =250x]()
 
 ## Maintainers
 This project is mantained by:
