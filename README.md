@@ -33,7 +33,9 @@ Use the Android Studio *Build Variants* button to choose between **release** and
 
 ## NetWorking 
 	- Retrofit with Kotlin Coroutine 
-
+## Unit Tests	
+	- Junit
+	
 ## Maintainers
 This project is mantained by:
 * [Muhammad Zia Shahid](http://github.com/boygaggoo)
