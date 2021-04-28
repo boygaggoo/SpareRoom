@@ -35,7 +35,18 @@ Use the Android Studio *Build Variants* button to choose between **release** and
 	- Retrofit with Kotlin Coroutine 
 ## Unit Tests	
 	- Junit
-	
+
+## App Feature
+	- Internet Check
+	- Dark Mode
+	- Local Database
+	- Pull to Refresh
+	- Clean Code Architecture
+
+## App Demo
+
+[![Loading](https://raw.githubusercontent.com/boygaggoo/SpareRoom/master/demo.gid)]()
+
 ## Maintainers
 This project is mantained by:
 * [Muhammad Zia Shahid](http://github.com/boygaggoo)
