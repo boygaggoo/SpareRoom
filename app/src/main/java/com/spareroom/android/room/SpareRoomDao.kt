@@ -11,7 +11,7 @@ interface SpareRoomDao  {
     //Return rows number OR -1 if failed.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(mangaEntity: SpareRoomCacheEntity): Long
-
+    
     @Query("SELECT * FROM SpareRoom")
     suspend fun getAll(): List<SpareRoomCacheEntity>
 

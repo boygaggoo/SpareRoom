@@ -254,8 +254,8 @@ class DynamicFragment : Fragment() {
 
     fun alertUser() {
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Androidly Alert")
-        builder.setMessage("We have a message")
+        builder.setTitle("Spare Room")
+        builder.setMessage("Data Loading Option")
 //builder.setPositiveButton("OK", DialogInterface.OnClickListener(function = x))
 
         builder.setPositiveButton("Local Data") { dialog, which ->
